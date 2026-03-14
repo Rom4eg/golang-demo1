@@ -2,10 +2,11 @@ package target
 
 import (
 	"context"
-	"downloader/target/mock"
 	"fmt"
 	"net/http"
 	"testing"
+
+	"github.com/Rom4eg/golang-demo1/internal/target/mock"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"

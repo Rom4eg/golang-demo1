@@ -2,12 +2,12 @@ package downloader
 
 import (
 	"bytes"
-	"downloader/storage"
 	"fmt"
 	"io"
 	"net/http"
-	"path/filepath"
 	"time"
+
+	"github.com/Rom4eg/golang-demo1/internal/storage"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -17,13 +17,6 @@ func (d *Downloader) Download(s *storage.Storage) error {
 	if e != nil {
 		return e
 	}
-
-	bName := filepath.Base(d.Url)
-	e = s.SaveTo(bName)
-	if e != nil {
-		return e
-	}
-	fmt.Printf("Save to %s\n", bName)
 
 	name, e := s.Allocate(d.t.ContentLength)
 	if e != nil {
@@ -35,11 +28,11 @@ func (d *Downloader) Download(s *storage.Storage) error {
 
 	nT := d.Threads()
 	fmt.Printf("Threads: %d\n", nT)
-	for i := 0; i < nT; i++ {
+	for i := int64(0); i < int64(nT); i++ {
 		start := i * d.ChunkSize
 		end := (start + 1) + d.ChunkSize
-		if end > int(d.t.ContentLength) {
-			end = int(d.t.ContentLength)
+		if end > d.t.ContentLength {
+			end = d.t.ContentLength
 		}
 
 		eg.Go(func() error {
@@ -57,7 +50,6 @@ func (d *Downloader) Download(s *storage.Storage) error {
 }
 
 func (d *Downloader) download(s *storage.Storage, start, end int64) error {
-	fmt.Printf("Downloading from %d to %d\n", start, end)
 	c := http.Client{
 		Timeout: 15 * time.Second,
 	}
